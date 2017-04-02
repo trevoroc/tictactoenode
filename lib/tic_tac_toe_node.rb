@@ -10,9 +10,38 @@ class TicTacToeNode
   end
 
   def losing_node?(evaluator)
+    # winner is not next_mover_mark
+    return false if @board.tied?
+    return @board.winner != evaluator if @board.over?
+
+
+    puts "Evaluator: #{evaluator}"
+    puts "Next mover: #{@next_mover_mark}"
+    if evaluator == @next_mover_mark
+      # puts "in the wrong place"
+      children.all? do |child|
+        child.losing_node?(evaluator)
+      end
+    else
+      # puts "in the right place"
+      children.any? do |child|
+        child.losing_node?(evaluator)
+      end
+    end
   end
 
   def winning_node?(evaluator)
+    return @board.winner == evaluator if @board.over?
+
+    child_nodes = children
+
+    if evaluator == @next_mover_mark
+      child_nodes.any? do |child|
+        child.winning_node?(evaluator)
+      end
+    else
+
+    end
   end
 
   # This method generates an array of all moves that can be made after
@@ -23,7 +52,7 @@ class TicTacToeNode
     empty_spaces.each do |pos|
       new_board = @board.dup
       new_board[pos] = @next_mover_mark
-      new_node_mark = @next_mover_mark == :x ? :o : :x
+      new_node_mark = toggle_mark(@next_mover_mark)
       children_list << TicTacToeNode.new(new_board, new_node_mark, pos)
     end
     children_list
@@ -39,5 +68,9 @@ class TicTacToeNode
       end
     end
     empty_spaces
+  end
+
+  def toggle_mark(mark)
+    mark == :x ? :o : :x
   end
 end
